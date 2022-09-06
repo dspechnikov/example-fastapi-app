@@ -1,0 +1,58 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.10"
+
+[packages]
+fastapi = "*"
+sqlalchemy = "*"
+
+gunicorn = "*"
+uvicorn = "*"
+
+pydantic = {version="*", extras=["dotenv"]}  # app settings management
+
+[dev-packages]
+# DB migrations
+alembic = "*"
+
+# testing
+pytest = "*"
+pytest-env = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+requests = "*"  # for TestClient to work
+
+# code quality
+flake8 = "*"
+black = "22.6.0"
+isort = "*"
+mypy = "*"
+pre-commit = "*"
+
+[scripts]
+# set up the project
+setup = """bash -c '
+    pipenv install -d && \
+    pre-commit install --install-hooks
+'"""
+
+# run service locally
+start_dev = """bash -c '
+    echo "Running DB migrations" && \
+    alembic upgrade head && \
+    echo "Running app" && \
+    uvicorn --reload tinyurl2.app:app
+'"""
+
+# run tests
+test = "pytest"
+
+# run tests with coverage
+test_cov = "pytest --cov --cov-report term-missing:skip-covered"
+
+# check code quality
+codeqa = "pre-commit run --all-files"

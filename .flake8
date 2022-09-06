@@ -1,0 +1,7 @@
+[flake8]
+# W503: PEP8 suggests to use line break before operator in new code
+# E203: PEP8 suggests to leave an equal amount of space on either side of : in slice
+ignore = W503,E203
+
+# black default value, see details here: https://github.com/python/black#line-length
+max-line-length = 88
