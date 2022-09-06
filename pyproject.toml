@@ -1,0 +1,25 @@
+[tool.mypy]
+ignore_missing_imports = true
+exclude = [
+    ".*conftest.py",
+    ".*/tests/.*",
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+addopts = "-ra -q --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = [
+    "./tinyurl2/",
+]
+omit = [
+    "*conftest.py",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 90

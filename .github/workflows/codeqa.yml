@@ -1,0 +1,38 @@
+on: push
+
+name: Code QA
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    container: python:3.10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install pre-commit
+        run: |
+          pip install -q pre-commit pipenv
+          pre-commit install --install-hooks
+
+      - name: Run code QA tools
+        run: |
+          pipenv run codeqa
+
+  tests:
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install required packages
+        run: |
+          pip install -q pipenv
+          pipenv install -d --system --deploy
+
+      - name: Run tests
+        run: |
+          pipenv run test_cov
