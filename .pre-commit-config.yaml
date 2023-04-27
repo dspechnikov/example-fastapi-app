@@ -1,23 +1,96 @@
 default_language_version:
-  python: python3.10
+  python: python3.11
 
 repos:
+
+# ----- Python
+
   - repo: https://github.com/pycqa/isort
-    rev: 5.9.3
+    rev: 5.12.0
     hooks:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    # The `refs/tags/<tag>:refs/tags/<tag>` is needed for black's
+    # required-version to work. See https://github.com/psf/black/issues/2493
+    rev: 'refs/tags/23.3.0:refs/tags/23.3.0'
     hooks:
       - id: black
 
   - repo: https://github.com/pycqa/flake8
-    rev: 3.9.2
+    rev: 6.0.0
     hooks:
       - id: flake8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.971
+    rev: v1.2.0
     hooks:
       - id: mypy
+        # disable built-in hook arguments, all options are defined in pyproject.toml
+        args: []
+
+        # without this option, pre-commit passes every file as command line argument.
+        # this breaks mypy exclude configuration, because mypy ignores it for files
+        # passed this way.
+        # this option disables advantages of pre-commit file discovery and slows down
+        # the hook but is still better than copying exclude configuration here.
+        # see discussion of the same issue in black formatter for additional context:
+        # https://github.com/psf/black/issues/438
+        pass_filenames: false
+
+        # pre-commit runs mypy from an isolated virtualenv, so we need to add
+        # typed dependencies and packages with mypy plugins separately
+        additional_dependencies:
+          - "fastapi==0.95.1"
+          - "pydantic==1.10.7"
+          - "sqlalchemy[mypy]==2.0.10"
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: name-tests-test
+
+# ----- Non-Python syntax checks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: check-xml
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.22.0
+    hooks:
+      - id: check-github-workflows
+
+# ----- Secrets detection
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: detect-private-key
+
+# ----- Formatting
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+
+# ----- Project structure
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-symlinks
+      - id: forbid-submodules
+      - id: check-added-large-files

@@ -1,3 +1,4 @@
+from sqlalchemy import orm
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -25,5 +26,6 @@ class DBSessionMiddleware(BaseHTTPMiddleware):
         return response
 
 
-def db_session(request: Request):
+def db_session(request: Request) -> orm.Session:
+    assert isinstance(request.state.db, orm.Session)
     return request.state.db

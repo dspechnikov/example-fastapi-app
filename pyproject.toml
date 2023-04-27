@@ -1,8 +1,26 @@
+[tool.black]
+target-version = ["py311"]
+required-version = "23.3.0"
+quiet = true
+
 [tool.mypy]
+strict = true
+
+# need to check type hints in the project code only,
+# so suppress warnings about missing annotations in 3rd party code
 ignore_missing_imports = true
+
+files = [
+    "./tinyurl2/",
+]
 exclude = [
     ".*conftest.py",
     ".*/tests/.*",
+]
+
+plugins = [
+    "pydantic.mypy",
+    "sqlalchemy.ext.mypy.plugin",
 ]
 
 [tool.isort]

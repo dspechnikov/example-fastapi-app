@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
 from tinyurl2.settings import settings
 
@@ -9,4 +9,6 @@ db_engine = create_engine(
     future=True,
 )
 
-BaseModel = declarative_base()
+
+class BaseModel(DeclarativeBase):
+    pass
