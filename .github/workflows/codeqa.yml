@@ -5,10 +5,14 @@ name: Code QA
 jobs:
   static-analysis:
     runs-on: ubuntu-latest
-    container: python:3.10
+    container: python:3.11
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # this fixes git permissions issue, see https://github.com/actions/checkout/issues/1048
+      - name: Resolve permissions issue for repo directory
+        run: "git config --system --add safe.directory ${GITHUB_WORKSPACE}"
 
       - name: Install pre-commit
         run: |
@@ -22,11 +26,15 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     container:
-      image: python:3.10
+      image: python:3.11
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # this fixes git permissions issue, see https://github.com/actions/checkout/issues/1048
+      - name: Resolve permissions issue for repo directory
+        run: "git config --system --add safe.directory ${GITHUB_WORKSPACE}"
 
       - name: Install required packages
         run: |

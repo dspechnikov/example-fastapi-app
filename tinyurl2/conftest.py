@@ -17,7 +17,7 @@ def init_db():
     finally:
         alembic.config.main(argv=["downgrade", "base"])
 
-        # # if test DB is file-based SQLite, also remove the file for complete cleanup
+        # if test DB is file-based SQLite, also remove the file for complete cleanup
         if (
             str(db_engine.engine.url).startswith("sqlite")
             and db_engine.engine.url.database != ":memory:"

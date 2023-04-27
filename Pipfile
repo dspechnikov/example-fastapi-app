@@ -4,16 +4,16 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [requires]
-python_version = "3.10"
+python_version = "3.11"
 
 [packages]
-fastapi = "*"
-sqlalchemy = "*"
+fastapi = "0.95.1"
+sqlalchemy = {version="2.0.10", extras=["mypy"]}
 
 gunicorn = "*"
 uvicorn = "*"
 
-pydantic = {version="*", extras=["dotenv"]}  # app settings management
+pydantic = {version="1.10.7", extras=["dotenv"]}  # app settings management
 
 [dev-packages]
 # DB migrations
@@ -24,13 +24,13 @@ pytest = "*"
 pytest-env = "*"
 pytest-mock = "*"
 pytest-cov = "*"
-requests = "*"  # for TestClient to work
+httpx = "0.24.0"  # for FastAPI TestClient to work
 
 # code quality
 flake8 = "*"
-black = "22.6.0"
+black = "23.3.0"
 isort = "*"
-mypy = "*"
+mypy = "1.2.0"
 pre-commit = "*"
 
 [scripts]
