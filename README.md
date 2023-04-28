@@ -13,9 +13,9 @@ A basic URL shortener service demonstrating Python backend app structure
 
 Install pipenv:
 ```bash
-pip install pipenv
+pip install -q pipenv
 ```
 
 Further setup is automated with commands documented in [Pipfile](./Pipfile)
 scripts section.
-They could be run with `pipenv run <command>`, i.e. `pipenv run setup`.
+They could be run with `pipenv run <script_name>`.

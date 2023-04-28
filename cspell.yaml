@@ -1,0 +1,12 @@
+# only check committed files, this allows to avoid duplicating gitignore paths here
+useGitignore: true
+# check files starting with dot as well, to avoid missing various config files
+enableGlobDot: true
+
+dictionaryDefinitions:
+  # project-specific words missing in built-in dictionaries
+  - name: cspell-exclude
+    path: './cspell-exclude.txt'
+
+dictionaries:
+  - cspell-exclude

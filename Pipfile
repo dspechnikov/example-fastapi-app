@@ -7,30 +7,26 @@ verify_ssl = true
 python_version = "3.11"
 
 [packages]
-fastapi = "0.95.1"
-sqlalchemy = {version="2.0.10", extras=["mypy"]}
-
+fastapi = "==0.95.1"
 gunicorn = "*"
 uvicorn = "*"
-
-pydantic = {version="1.10.7", extras=["dotenv"]}  # app settings management
+pydantic = {version = "==1.10.7", extras = ["dotenv"]}  # app settings management
+sqlalchemy = {version = "==2.0.11", extras = ["mypy"]}
 
 [dev-packages]
 # DB migrations
 alembic = "*"
-
 # testing
 pytest = "*"
 pytest-env = "*"
 pytest-mock = "*"
 pytest-cov = "*"
-httpx = "0.24.0"  # for FastAPI TestClient to work
-
+httpx = "==0.24.0"  # for FastAPI TestClient to work
 # code quality
 flake8 = "*"
-black = "23.3.0"
+black = "==23.3.0"
 isort = "*"
-mypy = "1.2.0"
+mypy = "==1.2.0"
 pre-commit = "*"
 
 [scripts]
@@ -39,20 +35,25 @@ setup = """bash -c '
     pipenv install -d && \
     pre-commit install --install-hooks
 '"""
-
 # run service locally
-start_dev = """bash -c '
+start-dev = """bash -c '
     echo "Running DB migrations" && \
     alembic upgrade head && \
     echo "Running app" && \
     uvicorn --reload tinyurl2.app:app
 '"""
-
 # run tests
 test = "pytest"
-
 # run tests with coverage
-test_cov = "pytest --cov --cov-report term-missing:skip-covered"
-
+test-cov = "pytest --cov --cov-report term-missing:skip-covered"
 # check code quality
-codeqa = "pre-commit run --all-files"
+code-qa = "pre-commit run --all-files"
+# A wrapper script to spellcheck file names with cspell for use with
+# pre-commit framework.
+#
+# Created to workaround the following limitations:
+# - cspell does not have an option to check file names
+# - pre-commit passes file list as the last part of the command
+spellcheck-file-paths = """bash -c '
+    echo "$@" | cspell-cli stdin --cache --show-context --no-summary --no-progress
+'"""
