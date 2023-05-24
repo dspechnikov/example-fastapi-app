@@ -2,7 +2,7 @@ import secrets
 import typing
 from typing import Any, ClassVar, Self
 
-from sqlalchemy import CursorResult, delete, select
+from sqlalchemy import BigInteger, CursorResult, delete, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import Session as SASession
@@ -18,7 +18,9 @@ class URL(BaseModel):
         primary_key=True, default=lambda: secrets.token_hex(4)
     )
     target: Mapped[str] = mapped_column(nullable=False)
-    _clicks: Mapped[int] = mapped_column(name="clicks", default=0, nullable=False)
+    _clicks: Mapped[int] = mapped_column(
+        BigInteger(), name="clicks", default=0, nullable=False
+    )
 
     @property
     def clicks(self) -> int:

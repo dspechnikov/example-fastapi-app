@@ -33,3 +33,14 @@ usefixtures
 uvicorn
 venv
 virtualenv
+isready
+docformatter
+psycopg
+healthcheck
+varchar
+smallint
+wemakeservices
+wemake
+dind
+libpq
+dont

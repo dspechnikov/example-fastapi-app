@@ -3,6 +3,11 @@ target-version = ["py311"]
 required-version = "23.3.0"
 quiet = true
 
+[tool.docformatter]
+in-place = true
+recursive = true
+black = true
+
 [tool.mypy]
 strict = true
 
@@ -27,7 +32,13 @@ plugins = [
 profile = "black"
 
 [tool.pytest.ini_options]
-addopts = "-ra -q --strict-markers"
+addopts = [
+    "-ra",  # show summary for all except passed tests
+    "-q",  # quiet
+    "--strict-markers",  # require custom markers to be listed in config
+    # skip fully covered files in coverage report
+    "--cov-report=term-missing:skip-covered",
+]
 
 [tool.coverage.run]
 branch = true
@@ -37,6 +48,7 @@ source = [
 omit = [
     "*conftest.py",
     "*/tests/*",
+    "*/migrations/*",
 ]
 
 [tool.coverage.report]

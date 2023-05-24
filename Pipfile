@@ -8,23 +8,33 @@ python_version = "3.11"
 
 [packages]
 fastapi = "==0.95.1"
-gunicorn = "*"
-uvicorn = "*"
-pydantic = {version = "==1.10.7", extras = ["dotenv"]}  # app settings management
-sqlalchemy = {version = "==2.0.11", extras = ["mypy"]}
+
+# app settings management. dotenv is needed for .env files support
+pydantic = {version = "==1.10.7", extras = ["dotenv"]}
+
+# ORM
+sqlalchemy = {version = "==2.0.13", extras = ["postgresql_psycopg"]}
+
+# application server
+gunicorn = "==20.1.0"
+uvicorn = "==0.22.0"
 
 [dev-packages]
 # DB migrations
-alembic = "*"
+alembic = "==1.11.0"
+python-dotenv = "==1.0.0"  # for .env file support in Alembic env.py script
+
 # testing
 pytest = "*"
 pytest-env = "*"
 pytest-mock = "*"
 pytest-cov = "*"
 httpx = "==0.24.0"  # for FastAPI TestClient to work
+
 # code quality
 flake8 = "*"
 black = "==23.3.0"
+docformatter = "==1.7.1"
 isort = "*"
 mypy = "==1.2.0"
 pre-commit = "*"
@@ -33,24 +43,72 @@ pre-commit = "*"
 # set up the project
 setup = """bash -c '
     pipenv install -d && \
-    pre-commit install --install-hooks
+    pipenv run pre-commit install --install-hooks && \
+    docker compose build app && \
+    pipenv run start-db
 '"""
-# run service locally
-start-dev = """bash -c '
-    echo "Running DB migrations" && \
-    alembic upgrade head && \
-    echo "Running app" && \
-    uvicorn --reload tinyurl2.app:app
+
+# run development environment locally
+run-dev = """bash -c '
+    alembic upgrade head || exit $?;
+
+    uvicorn --reload tinyurl2.app:app;
+
+    alembic downgrade base
 '"""
+
+# start db server
+start-db = """bash -c '
+    docker compose up db -d || exit $?;
+    while ! docker compose exec -T db "pg_isready";
+      do sleep 0.2;
+    done;
+'"""
+
+# stop db server and remove containers
+rm-db = "docker compose rm -s -f db"
+
+# Generate db migrations with Alembic. Alembic requires an up-to-date database for
+# auto-generation to work.
+make-db-migrations = """bash -c '
+    alembic upgrade head || exit $?;
+    alembic check || alembic revision --autogenerate -m "$0";
+
+    alembic downgrade base
+'"""
+mm = "pipenv run make-db-migrations"  # short alias
+
+# Apply db migrations with Alembic
+migrate-db = "alembic upgrade head"
+mi = "pipenv run migrate-db"  # short alias
+
+# A script to check whether Alembic migrations match SQLAlchemy models in the project.
+# Alembic requires an up-to-date database for that.
+check-missing-migrations = """bash -c '
+    alembic upgrade head || exit $?;
+    alembic check;
+    check_status=$?;
+
+    alembic downgrade base;
+    exit $check_status
+'"""
+
+# run DB migrations sanity checks
+lint-migrations = """bash -c '
+    alembic upgrade head --sql | squawk
+'"""
+
 # run tests
 test = "pytest"
+
 # run tests with coverage
 test-cov = "pytest --cov --cov-report term-missing:skip-covered"
+
 # check code quality
-code-qa = "pre-commit run --all-files"
-# A wrapper script to spellcheck file names with cspell for use with
-# pre-commit framework.
-#
+code-qa = "pre-commit run --all-files -v"
+
+# A wrapper script to spellcheck file paths with cspell. Expects file paths
+# as arguments.
 # Created to workaround the following limitations:
 # - cspell does not have an option to check file names
 # - pre-commit passes file list as the last part of the command

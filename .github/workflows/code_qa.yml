@@ -5,7 +5,7 @@ name: Code QA
 jobs:
   static-analysis:
     runs-on: ubuntu-latest
-    container: python:3.11
+    container: docker:24.0.2-git
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -14,19 +14,16 @@ jobs:
       - name: Resolve permissions issue for repo directory
         run: "git config --system --add safe.directory ${GITHUB_WORKSPACE}"
 
-      - name: Install pre-commit
-        run: |
-          pip install -q pre-commit pipenv
-          pre-commit install --install-hooks
+      - name: Fill environment variables
+        run: cp .env.template .env
 
       - name: Run code QA tools
-        run: |
-          pipenv run code-qa
+        run: docker compose run --build app pipenv run pre-commit run --all-files
 
   tests:
     runs-on: ubuntu-latest
     container:
-      image: python:3.11
+      image: docker:24.0.2-git
 
     steps:
       - name: Checkout
@@ -36,11 +33,8 @@ jobs:
       - name: Resolve permissions issue for repo directory
         run: "git config --system --add safe.directory ${GITHUB_WORKSPACE}"
 
-      - name: Install required packages
-        run: |
-          pip install -q pipenv
-          pipenv install -d --system --deploy
+      - name: Fill environment variables
+        run: cp .env.template .env
 
       - name: Run tests
-        run: |
-          pipenv run test-cov
+        run: docker compose run --build app pipenv run pytest --cov --cov-report term-missing:skip-covered

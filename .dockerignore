@@ -1,0 +1,14 @@
+.venv
+
+.mypy_cache
+.pytest_cache
+.coverage
+.cspellcache
+
+.dockerignore
+docker-compose.yml
+
+.git
+.gitignore
+
+.github

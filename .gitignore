@@ -11,8 +11,14 @@ __pycache__/
 .python-version
 _packages
 
-# mypy
+# mypy cache
 .mypy_cache/
 
 # JetBrains IDE settings
 .idea/
+
+# cspell cache
+.cspellcache
+
+.env*
+!.env.template
