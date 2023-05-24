@@ -27,17 +27,31 @@ repos:
     hooks:
       - id: black
 
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.1
+    hooks:
+      - id: docformatter
+
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
       - id: flake8
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+  # use local system hook instead of pre-commit mirror (uses isolated virtualenv)
+  # to avoid copying typed dependencies to additional_dependencies
+  - repo: local
     hooks:
       - id: mypy
-        # disable built-in hook arguments, all options are defined in pyproject.toml
-        args: []
+        name: mypy
+        description: 'Python type checker'
+        'types_or':
+          - python
+          - pyi
+        language: system
+        entry: mypy
+
+        # the hook runs noticeably faster with single process
+        require_serial: true
 
         # without this option, pre-commit passes every file as command line argument.
         # this breaks mypy exclude configuration, because mypy ignores it for files
@@ -47,13 +61,6 @@ repos:
         # see discussion of the same issue in black formatter for additional context:
         # https://github.com/psf/black/issues/438
         pass_filenames: false
-
-        # pre-commit runs mypy from an isolated virtualenv, so we need to add
-        # typed dependencies and packages with mypy plugins separately
-        additional_dependencies:
-          - "fastapi==0.95.1"
-          - "pydantic==1.10.7"
-          - "sqlalchemy[mypy]==2.0.11"
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -67,6 +74,25 @@ repos:
       - id: pipenv-verify
 
 # ----- Non-Python syntax checks
+
+  - repo: https://github.com/sbdchd/squawk
+    rev: v0.24.0
+    hooks:
+      - id: squawk
+        entry: pipenv run lint-migrations
+        pass_filenames: false
+        files: tinyurl2/database/migrations/versions
+
+  - repo: local
+    hooks:
+      - id: alembic-check
+        name: alembic-check
+        description: 'Check for missing Alembic migrations'
+        entry: pipenv run check-missing-migrations
+        pass_filenames: false
+        types:
+          - python
+        language: python
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

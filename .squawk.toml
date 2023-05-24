@@ -1,0 +1,11 @@
+pg_version = "15.2"
+excluded_rules = [
+    # deprecated, see https://squawkhq.com/docs/prefer-big-int
+    "prefer-big-int",
+    # allow smallint for cases when the range is small and strictly limited
+    "prefer-bigint-over-smallint",
+    # prefer-text-field has to be disabled for integration with alembic.
+    # alembic uses varchar column in built-in alembic_version table. This table
+    # cannot be changed, and is always present as part of initial migration.
+    "prefer-text-field",
+]

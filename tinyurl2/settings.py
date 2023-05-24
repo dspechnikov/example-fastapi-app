@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_prefix = "TINYURL2_"
 
 
 settings = Settings()
