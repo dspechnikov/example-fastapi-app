@@ -25,7 +25,7 @@ def init_db():
             os.remove(db_engine.engine.url.database)
 
 
-@pytest.fixture
+@pytest.fixture()
 def db_session(request):
     session = Session()
     try:
@@ -47,7 +47,7 @@ def db_session(request):
         session.close()
 
 
-@pytest.fixture
+@pytest.fixture()
 def app_client(request):
     client = TestClient(app)
     if getattr(request, "cls", None):

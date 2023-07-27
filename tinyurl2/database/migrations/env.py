@@ -1,7 +1,9 @@
+# noqa: INP001 this module should be used as a standalone script, no need for a package
+"""A script to configure Alembic environment and run migrations."""
 import os
 from importlib import import_module
 from logging.config import fileConfig
-from typing import Optional, cast
+from typing import cast
 
 from alembic import context
 from alembic.context import config
@@ -16,15 +18,15 @@ class Options:
     DATA_MODELS = "data_models"
 
 
-def get_main_option_with_env(option_name: str) -> Optional[str]:
-    """Substitute environment variables in an option from Alembic config main section.
-    I.e. url={URL_ENVIRONMENT_VARIABLE}.
+def get_main_option_with_env(option_name: str) -> str | None:
+    """
+    Substitute environment variables in an option from Alembic config main section.
 
+    Example: url={URL_ENVIRONMENT_VARIABLE}.
     Supports following sources (ordered by precedence):
         - .env file in the root of the project
         - shell environment variables
     """
-
     if not (option_value := config.get_main_option(option_name)):
         return None
 
@@ -32,12 +34,13 @@ def get_main_option_with_env(option_name: str) -> Optional[str]:
         **{
             **dotenv_values(),
             **os.environ,
-        }
+        },
     )
 
 
-def run_migrations_offline(target_metadata: Optional[MetaData]) -> None:
-    """Run migrations in 'offline' mode.
+def run_migrations_offline(target_metadata: MetaData | None) -> None:
+    """
+    Run migrations in 'offline' mode.
 
     This configures the context with just a URL and not an Engine, though an Engine is
     acceptable here as well.  By skipping the Engine creation we don't even need a DBAPI
@@ -57,8 +60,9 @@ def run_migrations_offline(target_metadata: Optional[MetaData]) -> None:
         context.run_migrations()
 
 
-def run_migrations_online(target_metadata: Optional[MetaData]) -> None:
-    """Run migrations in 'online' mode.
+def run_migrations_online(target_metadata: MetaData | None) -> None:
+    """
+    Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine and associate a connection with the
     context.
@@ -80,18 +84,21 @@ def run_migrations_online(target_metadata: Optional[MetaData]) -> None:
 
 
 def autogenerate_required() -> bool:
-    """Check whether migration auto-generation is required.
+    """
+    Check whether migration auto-generation is required.
 
     The main use case is `alembic revision --autogenerate` command. Some commands like
     alembic check use this as well.
     """
     # in some cases (i.e. alembic check command) autogenerate is not present as command
-    # line option and cannot be checked with config.cmd_opts.autogenerate, use
-    # environment context proxy instead. _proxy is core attribute for environment
-    # context. so getting the option from revision_context should be reliable enough.
-    # also ignore mypy errors, because _proxy is added to context module dynamically.
-    revision_context = context._proxy.context_opts.get(  # type: ignore[attr-defined]
-        "revision_context"
+    # line option and cannot be checked with config.cmd_opts.autogenerate. use
+    # environment context proxy instead. _proxy is a core attribute for environment
+    # context, so getting the option from revision_context should be reliable enough.
+    # also ignore mypy error, because _proxy is added to context module dynamically.
+    revision_context = (
+        context._proxy.context_opts.get(  # type: ignore[attr-defined] # noqa: SLF001
+            "revision_context",
+        )
     )
 
     return (
@@ -103,20 +110,23 @@ def autogenerate_required() -> bool:
 
 
 def get_base_model_metadata() -> MetaData:
-    """Get SQLAlchemy base model metadata from the class path specified in config.
+    """
+    Get SQLAlchemy base model metadata from the class path specified in config.
 
     Required for migration auto-generation to work.
     """
     if not (base_model := config.get_main_option(Options.BASE_MODEL)):
         raise ValueError(
-            f"For auto generation to work, path to base model must be "
-            f"specified in `{Options.BASE_MODEL}` option."
+            f"For auto generation to work, path to base model must be specified "
+            f"in `{Options.BASE_MODEL}` option.",
         )
 
     try:
         base_model_module_path, base_model_name = base_model.rsplit(".", 1)
     except ValueError as e:
-        raise ValueError(f"{base_model=} doesn't look like an object path") from e
+        raise ValueError(
+            f"base_model={base_model!r} doesn't look like an object path",
+        ) from e
 
     try:
         # explicit cast to indicate actual type for mypy
@@ -125,25 +135,26 @@ def get_base_model_metadata() -> MetaData:
             getattr(import_module(base_model_module_path), base_model_name).metadata,
         )
     except (ImportError, AttributeError) as e:
-        raise ValueError(f"Could not find {base_model=}") from e
+        raise ValueError(f"Could not find base_model={base_model!r}") from e
 
 
 def import_child_models() -> None:
-    """Import SQLAlchemy child models listed in Alembic config.
+    """
+    Import SQLAlchemy child models listed in Alembic config.
 
     Required for migration auto-generation to work.
     """
     if not (data_models := config.get_main_option(Options.DATA_MODELS)):
         raise ValueError(
-            f"For auto generation to work, paths to base model must be "
-            f"specified in `{Options.DATA_MODELS}` option."
+            f"For auto generation to work, paths to base model must be specified "
+            f"in `{Options.DATA_MODELS}` option.",
         )
 
     for model_module in data_models.split(","):
         try:
             import_module(model_module)
         except ImportError as e:
-            raise ValueError(f"Could not import {model_module=}") from e
+            raise ValueError(f"Could not import model_module={model_module!r}") from e
 
 
 def run_migrations() -> None:
