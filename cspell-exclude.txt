@@ -44,3 +44,4 @@ wemake
 dind
 libpq
 dont
+noqa

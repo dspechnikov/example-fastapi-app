@@ -3,11 +3,6 @@ target-version = ["py311"]
 required-version = "23.3.0"
 quiet = true
 
-[tool.docformatter]
-in-place = true
-recursive = true
-black = true
-
 [tool.mypy]
 strict = true
 
@@ -27,9 +22,6 @@ plugins = [
     "pydantic.mypy",
     "sqlalchemy.ext.mypy.plugin",
 ]
-
-[tool.isort]
-profile = "black"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -53,3 +45,26 @@ omit = [
 
 [tool.coverage.report]
 fail_under = 90
+
+[tool.ruff]
+extend-exclude = [
+    "tests",  # tests don't need to meet the requirements for production code
+    "conftest.py",  # tests don't need to meet the requirements for production code
+]
+force-exclude = true # honor exclude config when files are passed to CLI with pre-commit
+target-version = "py311"
+select = [
+    "ALL",  # majority of builtin rules are useful. specific list would be too large
+]
+ignore = [
+    "D203",    # conflicts with D211, prefer no blank line before class docstring
+    "D212",    # conflicts with D213, prefer docstring summary on the second line
+    "EM",      # a small clutter in exception trace doesn't justify redundant variable
+    "TRY003",  # actually verifies the same thing as EM, ignore as well
+    "ANN",     # mypy is used as type checker, this would overlap with it
+]
+
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends", # Depends is immutable and is safe to whitelist against B008
+]

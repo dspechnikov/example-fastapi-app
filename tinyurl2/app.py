@@ -1,3 +1,5 @@
+"""FastAPI application configuration."""
+
 from fastapi import FastAPI
 
 from tinyurl2.api.url.routes.click import router as url_click_router

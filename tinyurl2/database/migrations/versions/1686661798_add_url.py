@@ -1,4 +1,6 @@
-"""Message: "add url".
+# noqa: INP001 it's a migration module, no need for a package
+"""
+Message: "add url".
 
 - Revision ID: 65bb7b08cbaa
 - Previous: None
@@ -16,6 +18,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    """Upgrade database to the next revision."""
     op.create_table(
         "url",
         sa.Column("id", sa.String(), nullable=False),
@@ -26,4 +29,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Downgrade database to the previous revision."""
     op.drop_table("url")
